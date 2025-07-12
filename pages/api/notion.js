@@ -2,6 +2,9 @@
 import { getDatabase } from "../../lib/notion";
 
 export default async function handler(req, res) {
+  // CORSヘッダー追加
+  res.setHeader('Access-Control-Allow-Origin', '*');
+	
   try {
     const data = await getDatabase();
     const results = data.map((page) => {
