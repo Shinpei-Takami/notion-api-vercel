@@ -1,21 +1,22 @@
-// Notion SDK をインポート
-const { Client } = require('@notionhq/client');
+// pages/api/notion.js
 
-// 環境変数から API キーを読み込む
+import { Client } from "@notionhq/client";
+
+// .env.local に保存されたキーを使って Notion クライアントを初期化
 const notion = new Client({ auth: process.env.NOTION_API_KEY });
 
-// エクスポートされる非同期関数（APIハンドラ）
 export default async function handler(req, res) {
   try {
-    // データベースIDを使ってクエリ実行
+    // Notion データベースの情報を取得
     const response = await notion.databases.query({
       database_id: process.env.NOTION_DATABASE_ID,
     });
 
-    // 必要なプロパティを整形して抽出（あなたのNotionのカラム名に合わせて調整）
+    // 各ページのプロパティを整形して返す
     const results = response.results.map((page) => {
       const props = page.properties;
       return {
+        id: page.id,
         title: props['書籍名']?.title?.[0]?.plain_text || '(無題)',
         author: props['著者名']?.rich_text?.[0]?.plain_text || '',
         publisher: props['出版社']?.rich_text?.[0]?.plain_text || '',
@@ -26,10 +27,10 @@ export default async function handler(req, res) {
       };
     });
 
-    // JSONで返す
+    // 成功時に JSON を返す
     res.status(200).json(results);
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
+    console.error('Notion API error:', error);
     res.status(500).json({ error: 'Notion API error' });
   }
 }
