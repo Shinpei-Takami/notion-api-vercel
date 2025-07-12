@@ -1,19 +1,25 @@
 // pages/api/notion.js
-
-// lib フォルダから getDatabase 関数をインポート
 import { getDatabase } from "../../lib/notion";
 
-// 非同期のAPIハンドラー関数を定義
 export default async function handler(req, res) {
   try {
-    // Notionデータベースのデータを取得
     const data = await getDatabase();
+    const results = data.map((page) => {
+      const props = page.properties;
+      return {
+        title: props['書籍名']?.title?.[0]?.plain_text || '(無題)',
+        author: props['著者名']?.rich_text?.[0]?.plain_text || '',
+        publisher: props['出版社']?.rich_text?.[0]?.plain_text || '',
+        year: props['出版年']?.number || '',
+        selector: props['選書者']?.rich_text?.[0]?.plain_text || '',
+        quote: props['引用']?.rich_text?.[0]?.plain_text || '',
+        comment: props['一言']?.rich_text?.[0]?.plain_text || '',
+      };
+    });
 
-    // 取得したデータをJSON形式でレスポンスとして返す
-    res.status(200).json(data);
+    res.status(200).json(results);
   } catch (error) {
-    // エラーが発生した場合は、エラー内容をログに出して500で返す
-    console.error("APIエラー:", error);
-    res.status(500).json({ error: "Failed to fetch data from Notion." });
+    console.error('Notion API error:', error);
+    res.status(500).json({ error: 'Notion API error' });
   }
 }
