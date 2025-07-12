@@ -1,0 +1,5 @@
+# macOS の不要ファイル
+.DS_Store
+
+# node_modules 無視（後で使う）
+node_modules
