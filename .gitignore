@@ -3,3 +3,5 @@
 
 # node_modules 無視（後で使う）
 node_modules
+
+.vscode
